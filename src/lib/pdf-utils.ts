@@ -1,6 +1,6 @@
 import * as pdfjsLib from 'pdfjs-dist'
 
-// Set worker source
+// Set worker source for pdfjs-dist v4
 pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`
 
 export interface PDFMetadata {
@@ -10,24 +10,31 @@ export interface PDFMetadata {
 }
 
 export async function extractPDFMetadata(file: File): Promise<PDFMetadata> {
-  const arrayBuffer = await file.arrayBuffer()
-  const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise
-  
-  const metadata = await pdf.getMetadata()
-  const info = metadata.info as Record<string, unknown>
-  
-  // Try to get title from metadata, fallback to filename
-  let title = (info?.Title as string) || ''
-  if (!title) {
-    title = file.name.replace(/\.pdf$/i, '')
-  }
-  
-  const author = (info?.Author as string) || undefined
-  
-  return {
-    title,
-    author,
-    totalPages: pdf.numPages,
+  try {
+    const arrayBuffer = await file.arrayBuffer()
+    const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise
+    
+    let title = file.name.replace(/\.pdf$/i, '')
+    let author: string | undefined
+    
+    try {
+      const metadata = await pdf.getMetadata()
+      const info = metadata.info as Record<string, unknown>
+      if (info?.Title) title = info.Title as string
+      if (info?.Author) author = info.Author as string
+    } catch {
+      // Metadata extraction failed, use filename
+      console.warn('Could not extract PDF metadata, using filename')
+    }
+    
+    return {
+      title,
+      author,
+      totalPages: pdf.numPages,
+    }
+  } catch (error) {
+    console.error('PDF parsing error:', error)
+    throw new Error(`Failed to parse PDF: ${error instanceof Error ? error.message : 'Unknown error'}`)
   }
 }
 
