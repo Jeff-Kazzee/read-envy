@@ -1,0 +1,109 @@
+@import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+/* Void Theme - Academic Arsenal */
+:root {
+  /* Core Palette */
+  --void-bg: #0A0A0A;
+  --void-surface: #111111;
+  --void-surface-hover: #1A1A1A;
+  --void-border: #1F1F1F;
+  --void-border-hover: #2A2A2A;
+  --void-text: #EDEDED;
+  --void-text-muted: #A1A1AA;
+  --void-text-dim: #52525B;
+  
+  /* Accent Colors */
+  --accent-primary: #6366F1;
+  --accent-primary-hover: #818CF8;
+  --accent-success: #10B981;
+  --accent-warning: #F59E0B;
+  --accent-danger: #EF4444;
+  --accent-streak: #F97316;
+  
+  /* Typography */
+  --font-sans: 'Inter', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  
+  /* Spacing */
+  --header-height: 56px;
+  --sidebar-width: 240px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--void-bg);
+  color: var(--void-text);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--void-bg);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--void-border);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--void-text-dim);
+}
+
+/* Focus Styles */
+*:focus-visible {
+  outline: 2px solid var(--accent-primary);
+  outline-offset: 2px;
+}
+
+/* Selection */
+::selection {
+  background-color: var(--accent-primary);
+  color: white;
+}
+
+/* Utility Classes */
+.font-mono {
+  font-family: var(--font-mono);
+}
+
+/* Glass Effect */
+.glass {
+  background: rgba(17, 17, 17, 0.8);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--void-border);
+}
+
+/* Progress Bar Glow */
+.progress-glow {
+  box-shadow: 0 0 10px var(--accent-primary), 0 0 20px rgba(99, 102, 241, 0.3);
+}
+
+/* Streak Fire Animation */
+@keyframes fire-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+.streak-fire {
+  animation: fire-pulse 1.5s ease-in-out infinite;
+}
