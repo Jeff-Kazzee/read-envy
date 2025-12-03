@@ -37,7 +37,7 @@ interface OutlineTreeProps {
 
 function OutlineTree({ items, currentPage, expandedItems, onToggleExpand, onNavigate, depth = 0 }: OutlineTreeProps) {
   return (
-    <ul className={depth === 0 ? '' : 'ml-3 border-l border-[var(--void-border)]'}>
+    <ul className={depth === 0 ? '' : 'ml-3 border-l border-(--void-border)'}>
       {items.map((item, index) => {
         const key = `${depth}-${index}-${item.title}`
         const hasChildren = item.items && item.items.length > 0
@@ -51,12 +51,12 @@ function OutlineTree({ items, currentPage, expandedItems, onToggleExpand, onNavi
               {hasChildren ? (
                 <button
                   onClick={() => onToggleExpand(key)}
-                  className="p-1 hover:bg-[var(--void-surface-hover)] rounded shrink-0"
+                  className="p-1 hover:bg-(--void-surface-hover) rounded shrink-0"
                 >
                   {isExpanded ? (
-                    <ChevronDown className="w-3 h-3 text-[var(--void-text-dim)]" />
+                    <ChevronDown className="w-3 h-3 text-(--void-text-dim)" />
                   ) : (
-                    <ChevronRightIcon className="w-3 h-3 text-[var(--void-text-dim)]" />
+                    <ChevronRightIcon className="w-3 h-3 text-(--void-text-dim)" />
                   )}
                 </button>
               ) : (
@@ -68,8 +68,8 @@ function OutlineTree({ items, currentPage, expandedItems, onToggleExpand, onNavi
                 onClick={() => onNavigate(item.pageNumber)}
                 className={`flex-1 text-left px-2 py-1 text-sm rounded truncate transition-colors ${
                   isActive 
-                    ? 'bg-[var(--accent-primary)] text-white' 
-                    : 'hover:bg-[var(--void-surface-hover)] text-[var(--void-text)]'
+                    ? 'bg-(--accent-primary) text-white' 
+                    : 'hover:bg-(--void-surface-hover) text-(--void-text)'
                 }`}
                 title={`${item.title} (Page ${item.pageNumber})`}
               >
@@ -77,7 +77,7 @@ function OutlineTree({ items, currentPage, expandedItems, onToggleExpand, onNavi
               </button>
               
               {/* Page number */}
-              <span className="text-xs text-[var(--void-text-dim)] px-2 shrink-0">
+              <span className="text-xs text-(--void-text-dim) px-2 shrink-0">
                 {item.pageNumber}
               </span>
             </div>
@@ -330,13 +330,13 @@ export function PDFReader({ book, onClose }: PDFReaderProps) {
   const percentComplete = Math.round((currentPage / numPages) * 100)
   
   return (
-    <div className="fixed inset-0 z-50 bg-[var(--void-bg)] flex flex-col">
+    <div className="fixed inset-0 z-50 bg-(--void-bg) flex flex-col">
       {/* Header */}
-      <header className="h-14 bg-[var(--void-surface)] border-b border-[var(--void-border)] flex items-center justify-between px-4 shrink-0">
+      <header className="h-14 bg-(--void-surface) border-b border-(--void-border) flex items-center justify-between px-4 shrink-0">
         <div className="flex items-center gap-4">
           <button
             onClick={onClose}
-            className="p-2 rounded hover:bg-[var(--void-surface-hover)] transition-colors"
+            className="p-2 rounded hover:bg-(--void-surface-hover) transition-colors"
             title="Close (Esc)"
           >
             <X className="w-5 h-5" />
@@ -345,7 +345,7 @@ export function PDFReader({ book, onClose }: PDFReaderProps) {
           {/* Table of Contents toggle */}
           <button
             onClick={toggleOutline}
-            className={`p-2 rounded transition-colors ${showOutline ? 'bg-[var(--accent-primary)] text-white' : 'hover:bg-[var(--void-surface-hover)]'}`}
+            className={`p-2 rounded transition-colors ${showOutline ? 'bg-(--accent-primary) text-white' : 'hover:bg-(--void-surface-hover)'}`}
             title="Table of Contents (T)"
           >
             <List className="w-5 h-5" />
@@ -360,7 +360,7 @@ export function PDFReader({ book, onClose }: PDFReaderProps) {
           {/* Zoom controls */}
           <button
             onClick={zoomOut}
-            className="p-2 rounded hover:bg-[var(--void-surface-hover)] transition-colors"
+            className="p-2 rounded hover:bg-(--void-surface-hover) transition-colors"
             title="Zoom out (-)"
           >
             <ZoomOut className="w-4 h-4" />
@@ -368,24 +368,24 @@ export function PDFReader({ book, onClose }: PDFReaderProps) {
           <span className="text-sm font-mono w-16 text-center">{Math.round(scale * 100)}%</span>
           <button
             onClick={zoomIn}
-            className="p-2 rounded hover:bg-[var(--void-surface-hover)] transition-colors"
+            className="p-2 rounded hover:bg-(--void-surface-hover) transition-colors"
             title="Zoom in (+)"
           >
             <ZoomIn className="w-4 h-4" />
           </button>
           
-          <div className="w-px h-6 bg-[var(--void-border)] mx-2" />
+          <div className="w-px h-6 bg-(--void-border) mx-2" />
           
           {/* Fullscreen toggle */}
           <button
             onClick={toggleFullscreen}
-            className="p-2 rounded hover:bg-[var(--void-surface-hover)] transition-colors"
+            className="p-2 rounded hover:bg-(--void-surface-hover) transition-colors"
             title={isFullscreen ? "Exit fullscreen (F)" : "Fullscreen (F)"}
           >
             {isFullscreen ? <Minimize className="w-4 h-4" /> : <Maximize className="w-4 h-4" />}
           </button>
           
-          <div className="w-px h-6 bg-[var(--void-border)] mx-2" />
+          <div className="w-px h-6 bg-(--void-border) mx-2" />
           
           {/* Page indicator */}
           <span className="text-sm font-mono">
@@ -398,13 +398,13 @@ export function PDFReader({ book, onClose }: PDFReaderProps) {
       <div className="flex-1 flex overflow-hidden">
         {/* Table of Contents Sidebar */}
         {showOutline && (
-          <aside className="w-64 bg-[var(--void-surface)] border-r border-[var(--void-border)] flex flex-col shrink-0 overflow-hidden">
-            <div className="p-3 border-b border-[var(--void-border)]">
-              <h2 className="text-sm font-medium text-[var(--void-text-muted)]">Table of Contents</h2>
+          <aside className="w-64 bg-(--void-surface) border-r border-(--void-border) flex flex-col shrink-0 overflow-hidden">
+            <div className="p-3 border-b border-(--void-border)">
+              <h2 className="text-sm font-medium text-(--void-text-muted)">Table of Contents</h2>
             </div>
             <div className="flex-1 overflow-auto p-2">
               {outline.length === 0 ? (
-                <p className="text-sm text-[var(--void-text-dim)] p-2">No table of contents available</p>
+                <p className="text-sm text-(--void-text-dim) p-2">No table of contents available</p>
               ) : (
                 <OutlineTree 
                   items={outline} 
@@ -419,10 +419,10 @@ export function PDFReader({ book, onClose }: PDFReaderProps) {
         )}
         
         {/* PDF Content */}
-        <div className="flex-1 overflow-auto flex justify-center p-4 bg-[var(--void-bg)]">
+        <div className="flex-1 overflow-auto flex justify-center p-4 bg-(--void-bg)">
           {!file ? (
             <div className="flex items-center justify-center h-full">
-              <p className="text-[var(--void-text-muted)]">Loading PDF...</p>
+              <p className="text-(--void-text-muted)">Loading PDF...</p>
             </div>
           ) : (
           <Document
@@ -430,12 +430,12 @@ export function PDFReader({ book, onClose }: PDFReaderProps) {
             onLoadSuccess={onDocumentLoadSuccess}
             loading={
               <div className="flex items-center justify-center h-full">
-                <p className="text-[var(--void-text-muted)]">Loading PDF...</p>
+                <p className="text-(--void-text-muted)">Loading PDF...</p>
               </div>
             }
             error={
               <div className="flex items-center justify-center h-full">
-                <p className="text-[var(--accent-danger)]">Failed to load PDF</p>
+                <p className="text-(--accent-danger)">Failed to load PDF</p>
               </div>
             }
             className="max-w-full"
@@ -453,17 +453,17 @@ export function PDFReader({ book, onClose }: PDFReaderProps) {
       </div>
       
       {/* Footer with navigation */}
-      <footer className="h-16 bg-[var(--void-surface)] border-t border-[var(--void-border)] flex items-center justify-between px-4 shrink-0">
+      <footer className="h-16 bg-(--void-surface) border-t border-(--void-border) flex items-center justify-between px-4 shrink-0">
         {/* Progress bar */}
         <div className="flex-1 max-w-md">
           <div className="flex items-center gap-3">
-            <div className="flex-1 h-2 bg-[var(--void-border)] rounded-full overflow-hidden">
+            <div className="flex-1 h-2 bg-(--void-border) rounded-full overflow-hidden">
               <div
-                className="h-full bg-[var(--accent-primary)] transition-all duration-300"
+                className="h-full bg-(--accent-primary) transition-all duration-300"
                 style={{ width: `${percentComplete}%` }}
               />
             </div>
-            <span className="text-sm font-mono text-[var(--void-text-muted)] w-12">
+            <span className="text-sm font-mono text-(--void-text-muted) w-12">
               {percentComplete}%
             </span>
           </div>
@@ -474,7 +474,7 @@ export function PDFReader({ book, onClose }: PDFReaderProps) {
           <button
             onClick={goToPrevPage}
             disabled={currentPage <= 1}
-            className="p-3 rounded bg-[var(--void-surface-hover)] hover:bg-[var(--void-border)] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+            className="p-3 rounded bg-(--void-surface-hover) hover:bg-(--void-border) disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
             title="Previous page (←)"
           >
             <ChevronLeft className="w-5 h-5" />
@@ -492,13 +492,13 @@ export function PDFReader({ book, onClose }: PDFReaderProps) {
                 setCurrentPage(page)
               }
             }}
-            className="w-16 bg-[var(--void-bg)] border border-[var(--void-border)] rounded px-2 py-1 text-center font-mono focus:border-[var(--accent-primary)] focus:outline-none"
+            className="w-16 bg-(--void-bg) border border-(--void-border) rounded px-2 py-1 text-center font-mono focus:border-(--accent-primary) focus:outline-none"
           />
           
           <button
             onClick={goToNextPage}
             disabled={currentPage >= numPages}
-            className="p-3 rounded bg-[var(--void-surface-hover)] hover:bg-[var(--void-border)] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+            className="p-3 rounded bg-(--void-surface-hover) hover:bg-(--void-border) disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
             title="Next page (→ or Space)"
           >
             <ChevronRight className="w-5 h-5" />

@@ -22,10 +22,10 @@ export function BookCard({ book, onClick }: BookCardProps) {
   return (
     <div
       onClick={onClick}
-      className="group relative bg-[var(--void-surface)] border border-[var(--void-border)] rounded overflow-hidden cursor-pointer transition-all hover:border-[var(--void-border-hover)] hover:bg-[var(--void-surface-hover)]"
+      className="group relative bg-(--void-surface) border border-(--void-border) rounded overflow-hidden cursor-pointer transition-all hover:border-(--void-border-hover) hover:bg-(--void-surface-hover)"
     >
       {/* Cover */}
-      <div className="aspect-[3/4] bg-[var(--void-bg)] relative overflow-hidden">
+      <div className="aspect-[3/4] bg-(--void-bg) relative overflow-hidden">
         {coverUrl ? (
           <img
             src={coverUrl}
@@ -33,7 +33,7 @@ export function BookCard({ book, onClick }: BookCardProps) {
             className="w-full h-full object-cover"
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-[var(--accent-primary)] to-[var(--void-bg)]">
+          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-(--accent-primary) to-(--void-bg)">
             <span className="text-4xl font-bold text-white/20">
               {book.title.charAt(0).toUpperCase()}
             </span>
@@ -42,7 +42,7 @@ export function BookCard({ book, onClick }: BookCardProps) {
         
         {/* Completed badge */}
         {book.status === 'completed' && (
-          <div className="absolute top-2 right-2 bg-[var(--accent-success)] text-white text-xs px-2 py-0.5 rounded font-medium">
+          <div className="absolute top-2 right-2 bg-(--accent-success) text-white text-xs px-2 py-0.5 rounded font-medium">
             DONE
           </div>
         )}
@@ -62,7 +62,7 @@ export function BookCard({ book, onClick }: BookCardProps) {
           {/* Dropdown menu */}
           {showMenu && (
             <div 
-              className="absolute top-8 left-0 bg-[var(--void-surface)] border border-[var(--void-border)] rounded shadow-lg z-10 min-w-32"
+              className="absolute top-8 left-0 bg-(--void-surface) border border-(--void-border) rounded shadow-lg z-10 min-w-32"
               onClick={(e) => e.stopPropagation()}
             >
               <button
@@ -70,7 +70,7 @@ export function BookCard({ book, onClick }: BookCardProps) {
                   await updateProgress(book.id, 0)
                   setShowMenu(false)
                 }}
-                className="w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-[var(--void-surface-hover)] transition-colors"
+                className="w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-(--void-surface-hover) transition-colors"
               >
                 <RotateCcw className="w-4 h-4" />
                 Reset Progress
@@ -82,7 +82,7 @@ export function BookCard({ book, onClick }: BookCardProps) {
                   }
                   setShowMenu(false)
                 }}
-                className="w-full flex items-center gap-2 px-3 py-2 text-sm text-[var(--accent-danger)] hover:bg-[var(--void-surface-hover)] transition-colors"
+                className="w-full flex items-center gap-2 px-3 py-2 text-sm text-(--accent-danger) hover:bg-(--void-surface-hover) transition-colors"
               >
                 <Trash2 className="w-4 h-4" />
                 Delete Book
@@ -99,31 +99,31 @@ export function BookCard({ book, onClick }: BookCardProps) {
         </h3>
         
         {book.author && (
-          <p className="text-xs text-[var(--void-text-muted)] truncate mt-0.5">
+          <p className="text-xs text-(--void-text-muted) truncate mt-0.5">
             {book.author}
           </p>
         )}
         
         {/* Progress bar */}
         <div className="mt-3">
-          <div className="h-1 bg-[var(--void-border)] rounded-full overflow-hidden">
+          <div className="h-1 bg-(--void-border) rounded-full overflow-hidden">
             <div
               className={`h-full transition-all duration-300 ${
                 book.percentComplete >= 100
-                  ? 'bg-[var(--accent-success)]'
-                  : 'bg-[var(--accent-primary)]'
+                  ? 'bg-(--accent-success)'
+                  : 'bg-(--accent-primary)'
               }`}
               style={{ width: `${book.percentComplete}%` }}
             />
           </div>
           
           <div className="flex items-center justify-between mt-1.5">
-            <span className="text-xs font-mono text-[var(--void-text-muted)]">
+            <span className="text-xs font-mono text-(--void-text-muted)">
               {book.percentComplete}%
             </span>
             
             {book.totalReadingTime > 0 && (
-              <span className="flex items-center gap-1 text-xs text-[var(--void-text-dim)]">
+              <span className="flex items-center gap-1 text-xs text-(--void-text-dim)">
                 <Clock className="w-3 h-3" />
                 {formatTimeShort(book.totalReadingTime)}
               </span>

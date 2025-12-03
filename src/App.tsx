@@ -50,7 +50,7 @@ function App() {
   }
   
   return (
-    <div className="h-screen flex flex-col bg-[var(--void-bg)]">
+    <div className="h-screen flex flex-col bg-(--void-bg)">
       <Header />
       
       <div className="flex-1 flex overflow-hidden">

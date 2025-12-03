@@ -94,21 +94,21 @@ export function SettingsView() {
         
         <div className="space-y-4">
           {/* Reset Progress */}
-          <div className="bg-[var(--void-surface)] border border-[var(--void-border)] rounded-lg p-4">
+          <div className="bg-(--void-surface) border border-(--void-border) rounded-lg p-4">
             <div className="flex items-start justify-between gap-4">
               <div>
                 <h3 className="font-medium flex items-center gap-2">
                   <RotateCcw className="w-4 h-4" />
                   Reset All Progress
                 </h3>
-                <p className="text-sm text-[var(--void-text-muted)] mt-1">
+                <p className="text-sm text-(--void-text-muted) mt-1">
                   Set all books back to page 0 and clear reading history. Books will remain in your library.
                 </p>
               </div>
               <button
                 onClick={handleResetAllProgress}
                 disabled={isResetting || books.length === 0}
-                className="px-4 py-2 bg-[var(--accent-warning)] text-black rounded font-medium hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-opacity shrink-0"
+                className="px-4 py-2 bg-(--accent-warning) text-black rounded font-medium hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-opacity shrink-0"
               >
                 {isResetting ? 'Resetting...' : 'Reset Progress'}
               </button>
@@ -116,21 +116,21 @@ export function SettingsView() {
           </div>
           
           {/* Clear Library */}
-          <div className="bg-[var(--void-surface)] border border-[var(--accent-danger)]/30 rounded-lg p-4">
+          <div className="bg-(--void-surface) border border-(--accent-danger)/30 rounded-lg p-4">
             <div className="flex items-start justify-between gap-4">
               <div>
-                <h3 className="font-medium flex items-center gap-2 text-[var(--accent-danger)]">
+                <h3 className="font-medium flex items-center gap-2 text-(--accent-danger)">
                   <AlertTriangle className="w-4 h-4" />
                   Delete All Data
                 </h3>
-                <p className="text-sm text-[var(--void-text-muted)] mt-1">
+                <p className="text-sm text-(--void-text-muted) mt-1">
                   Permanently delete all books, reading history, goals, and streaks. This cannot be undone.
                 </p>
               </div>
               <button
                 onClick={handleClearLibrary}
                 disabled={isClearing || books.length === 0}
-                className="px-4 py-2 bg-[var(--accent-danger)] text-white rounded font-medium hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-opacity shrink-0"
+                className="px-4 py-2 bg-(--accent-danger) text-white rounded font-medium hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-opacity shrink-0"
               >
                 {isClearing ? 'Deleting...' : 'Delete All'}
               </button>
@@ -142,12 +142,12 @@ export function SettingsView() {
       {/* Storage Info */}
       <section className="mb-8">
         <h2 className="text-lg font-semibold mb-4">Storage</h2>
-        <div className="bg-[var(--void-surface)] border border-[var(--void-border)] rounded-lg p-4">
+        <div className="bg-(--void-surface) border border-(--void-border) rounded-lg p-4">
           <div className="flex items-center justify-between">
-            <span className="text-[var(--void-text-muted)]">Books in library</span>
+            <span className="text-(--void-text-muted)">Books in library</span>
             <span className="font-mono">{books.length}</span>
           </div>
-          <p className="text-xs text-[var(--void-text-dim)] mt-3">
+          <p className="text-xs text-(--void-text-dim) mt-3">
             All data is stored locally in your browser using IndexedDB. Clearing browser data will delete your library.
           </p>
         </div>
@@ -156,12 +156,12 @@ export function SettingsView() {
       {/* About */}
       <section>
         <h2 className="text-lg font-semibold mb-4">About</h2>
-        <div className="bg-[var(--void-surface)] border border-[var(--void-border)] rounded-lg p-4">
+        <div className="bg-(--void-surface) border border-(--void-border) rounded-lg p-4">
           <h3 className="font-bold text-lg">Read-Envy</h3>
-          <p className="text-sm text-[var(--void-text-muted)] mt-1">
+          <p className="text-sm text-(--void-text-muted) mt-1">
             Transform your PDF graveyard into active learning.
           </p>
-          <p className="text-xs text-[var(--void-text-dim)] mt-3">
+          <p className="text-xs text-(--void-text-dim) mt-3">
             Version 1.0.0 MVP
           </p>
         </div>

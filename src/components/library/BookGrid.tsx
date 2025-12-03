@@ -15,7 +15,7 @@ export function BookGrid({ onBookClick }: BookGridProps) {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="text-[var(--void-text-muted)]">Loading library...</div>
+        <div className="text-(--void-text-muted)">Loading library...</div>
       </div>
     )
   }
@@ -29,7 +29,7 @@ export function BookGrid({ onBookClick }: BookGridProps) {
           <select
             value={filter}
             onChange={(e) => setFilter(e.target.value as BookFilter)}
-            className="bg-[var(--void-surface)] border border-[var(--void-border)] rounded px-3 py-1.5 text-sm focus:border-[var(--accent-primary)] focus:outline-none"
+            className="bg-(--void-surface) border border-(--void-border) rounded px-3 py-1.5 text-sm focus:border-(--accent-primary) focus:outline-none"
           >
             <option value="all">All Books</option>
             <option value="active">Active</option>
@@ -41,7 +41,7 @@ export function BookGrid({ onBookClick }: BookGridProps) {
           <select
             value={sort}
             onChange={(e) => setSort(e.target.value as BookSort)}
-            className="bg-[var(--void-surface)] border border-[var(--void-border)] rounded px-3 py-1.5 text-sm focus:border-[var(--accent-primary)] focus:outline-none"
+            className="bg-(--void-surface) border border-(--void-border) rounded px-3 py-1.5 text-sm focus:border-(--accent-primary) focus:outline-none"
           >
             <option value="lastRead">Recently Read</option>
             <option value="title">Title A-Z</option>
@@ -50,7 +50,7 @@ export function BookGrid({ onBookClick }: BookGridProps) {
           </select>
         </div>
         
-        <div className="text-sm text-[var(--void-text-muted)]">
+        <div className="text-sm text-(--void-text-muted)">
           {books.length} {books.length === 1 ? 'book' : 'books'}
         </div>
       </div>
@@ -61,9 +61,9 @@ export function BookGrid({ onBookClick }: BookGridProps) {
       {/* Grid or empty state */}
       {books.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-16 text-center">
-          <BookOpen className="w-16 h-16 text-[var(--void-text-dim)] mb-4" />
+          <BookOpen className="w-16 h-16 text-(--void-text-dim) mb-4" />
           <h3 className="text-lg font-medium mb-2">No books yet</h3>
-          <p className="text-sm text-[var(--void-text-muted)] max-w-sm">
+          <p className="text-sm text-(--void-text-muted) max-w-sm">
             Drag and drop a PDF above to start tracking your reading progress.
           </p>
         </div>

@@ -86,8 +86,8 @@ export function ImportDropzone() {
       className={`
         relative border-2 border-dashed rounded-lg p-8 text-center transition-all
         ${isDragging 
-          ? 'border-[var(--accent-primary)] bg-[var(--accent-primary)]/10' 
-          : 'border-[var(--void-border)] hover:border-[var(--void-border-hover)]'
+          ? 'border-(--accent-primary) bg-(--accent-primary)/10' 
+          : 'border-(--void-border) hover:border-(--void-border-hover)'
         }
         ${isProcessing ? 'pointer-events-none opacity-50' : ''}
       `}
@@ -103,23 +103,23 @@ export function ImportDropzone() {
       <div className="flex flex-col items-center gap-3">
         {isProcessing ? (
           <>
-            <Loader2 className="w-10 h-10 text-[var(--accent-primary)] animate-spin" />
-            <p className="text-sm text-[var(--void-text-muted)]">Processing PDF...</p>
+            <Loader2 className="w-10 h-10 text-(--accent-primary) animate-spin" />
+            <p className="text-sm text-(--void-text-muted)">Processing PDF...</p>
           </>
         ) : error ? (
           <>
-            <FileWarning className="w-10 h-10 text-[var(--accent-danger)]" />
-            <p className="text-sm text-[var(--accent-danger)]">{error}</p>
-            <p className="text-xs text-[var(--void-text-dim)]">Try another file</p>
+            <FileWarning className="w-10 h-10 text-(--accent-danger)" />
+            <p className="text-sm text-(--accent-danger)">{error}</p>
+            <p className="text-xs text-(--void-text-dim)">Try another file</p>
           </>
         ) : (
           <>
-            <Upload className={`w-10 h-10 ${isDragging ? 'text-[var(--accent-primary)]' : 'text-[var(--void-text-dim)]'}`} />
+            <Upload className={`w-10 h-10 ${isDragging ? 'text-(--accent-primary)' : 'text-(--void-text-dim)'}`} />
             <div>
               <p className="text-sm font-medium">
                 {isDragging ? 'Drop to import' : 'Drag & drop a PDF'}
               </p>
-              <p className="text-xs text-[var(--void-text-dim)] mt-1">
+              <p className="text-xs text-(--void-text-dim) mt-1">
                 or click to browse (max 100MB)
               </p>
             </div>
