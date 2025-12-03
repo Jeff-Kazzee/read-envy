@@ -4,7 +4,7 @@ import { Sidebar } from './components/layout/Sidebar'
 import { DashboardView } from './components/views/DashboardView'
 import { LibraryView } from './components/views/LibraryView'
 import { GoalsView } from './components/views/GoalsView'
-import { QuickLogModal } from './components/library/QuickLogModal'
+import { PDFReader } from './components/reader/PDFReader'
 import { useLibraryStore } from './stores/useLibraryStore'
 import { useGoalsStore } from './stores/useGoalsStore'
 
@@ -65,9 +65,9 @@ function App() {
         </main>
       </div>
       
-      {/* Quick Log Modal */}
+      {/* PDF Reader */}
       {selectedBook && (
-        <QuickLogModal book={selectedBook} onClose={handleCloseModal} />
+        <PDFReader book={selectedBook} onClose={handleCloseModal} />
       )}
     </div>
   )
