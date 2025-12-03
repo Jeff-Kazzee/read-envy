@@ -1,7 +1,10 @@
 import * as pdfjsLib from 'pdfjs-dist'
 
-// Set worker source for pdfjs-dist v4
-pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`
+// Set worker source using Vite's import.meta.url for proper resolution
+pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
+  'pdfjs-dist/build/pdf.worker.min.mjs',
+  import.meta.url
+).toString()
 
 export interface PDFMetadata {
   title: string
@@ -58,7 +61,6 @@ export async function generateCoverThumbnail(file: File, width = 150, height = 2
     await page.render({
       canvasContext: context,
       viewport: scaledViewport,
-      canvas,
     }).promise
     
     return new Promise((resolve) => {
