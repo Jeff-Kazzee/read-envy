@@ -4,6 +4,7 @@ import { Sidebar } from './components/layout/Sidebar'
 import { DashboardView } from './components/views/DashboardView'
 import { LibraryView } from './components/views/LibraryView'
 import { GoalsView } from './components/views/GoalsView'
+import { SettingsView } from './components/views/SettingsView'
 import { PDFReader } from './components/reader/PDFReader'
 import { useLibraryStore } from './stores/useLibraryStore'
 import { useGoalsStore } from './stores/useGoalsStore'
@@ -42,12 +43,7 @@ function App() {
       case 'goals':
         return <GoalsView />
       case 'settings':
-        return (
-          <div className="space-y-6">
-            <h1 className="text-2xl font-bold">Settings</h1>
-            <p className="text-[var(--void-text-muted)]">Settings coming soon...</p>
-          </div>
-        )
+        return <SettingsView />
       default:
         return null
     }

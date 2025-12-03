@@ -1,7 +1,8 @@
-import { useMemo } from 'react'
-import { Clock, MoreVertical } from 'lucide-react'
+import { useMemo, useState } from 'react'
+import { Clock, MoreVertical, Trash2, RotateCcw } from 'lucide-react'
 import type { Book } from '../../types'
 import { formatTimeShort } from '../../lib/utils'
+import { useLibraryStore } from '../../stores/useLibraryStore'
 
 interface BookCardProps {
   book: Book
@@ -9,6 +10,8 @@ interface BookCardProps {
 }
 
 export function BookCard({ book, onClick }: BookCardProps) {
+  const [showMenu, setShowMenu] = useState(false)
+  const { removeBook, updateProgress } = useLibraryStore()
   const coverUrl = useMemo(() => {
     if (book.coverThumbnail) {
       return URL.createObjectURL(book.coverThumbnail)
@@ -45,15 +48,48 @@ export function BookCard({ book, onClick }: BookCardProps) {
         )}
         
         {/* More menu button */}
-        <button
-          onClick={(e) => {
-            e.stopPropagation()
-            // TODO: Open context menu
-          }}
-          className="absolute top-2 left-2 p-1 rounded bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity"
-        >
-          <MoreVertical className="w-4 h-4" />
-        </button>
+        <div className="absolute top-2 left-2">
+          <button
+            onClick={(e) => {
+              e.stopPropagation()
+              setShowMenu(!showMenu)
+            }}
+            className="p-1 rounded bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity"
+          >
+            <MoreVertical className="w-4 h-4" />
+          </button>
+          
+          {/* Dropdown menu */}
+          {showMenu && (
+            <div 
+              className="absolute top-8 left-0 bg-[var(--void-surface)] border border-[var(--void-border)] rounded shadow-lg z-10 min-w-32"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <button
+                onClick={async () => {
+                  await updateProgress(book.id, 0)
+                  setShowMenu(false)
+                }}
+                className="w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-[var(--void-surface-hover)] transition-colors"
+              >
+                <RotateCcw className="w-4 h-4" />
+                Reset Progress
+              </button>
+              <button
+                onClick={async () => {
+                  if (confirm(`Delete "${book.title}"? This cannot be undone.`)) {
+                    await removeBook(book.id)
+                  }
+                  setShowMenu(false)
+                }}
+                className="w-full flex items-center gap-2 px-3 py-2 text-sm text-[var(--accent-danger)] hover:bg-[var(--void-surface-hover)] transition-colors"
+              >
+                <Trash2 className="w-4 h-4" />
+                Delete Book
+              </button>
+            </div>
+          )}
+        </div>
       </div>
       
       {/* Info */}
