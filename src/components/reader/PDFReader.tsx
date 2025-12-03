@@ -1,6 +1,6 @@
-import { useState, useEffect, useMemo, useCallback } from 'react'
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { Document, Page, pdfjs } from 'react-pdf'
-import { ChevronLeft, ChevronRight, X, ZoomIn, ZoomOut } from 'lucide-react'
+import { ChevronLeft, ChevronRight, X, ZoomIn, ZoomOut, Maximize, Minimize, List, ChevronDown, ChevronRight as ChevronRightIcon } from 'lucide-react'
 import type { Book } from '../../types'
 import { useLibraryStore } from '../../stores/useLibraryStore'
 import { useGoalsStore } from '../../stores/useGoalsStore'
@@ -13,18 +13,148 @@ pdfjs.GlobalWorkerOptions.workerSrc = new URL(
   import.meta.url
 ).toString()
 
+// Outline item interface
+interface OutlineItem {
+  title: string
+  pageNumber: number
+  items: OutlineItem[]
+}
+
 interface PDFReaderProps {
   book: Book
   onClose: () => void
+}
+
+// Outline Tree Component
+interface OutlineTreeProps {
+  items: OutlineItem[]
+  currentPage: number
+  expandedItems: Set<string>
+  onToggleExpand: (key: string) => void
+  onNavigate: (page: number) => void
+  depth?: number
+}
+
+function OutlineTree({ items, currentPage, expandedItems, onToggleExpand, onNavigate, depth = 0 }: OutlineTreeProps) {
+  return (
+    <ul className={depth === 0 ? '' : 'ml-3 border-l border-[var(--void-border)]'}>
+      {items.map((item, index) => {
+        const key = `${depth}-${index}-${item.title}`
+        const hasChildren = item.items && item.items.length > 0
+        const isExpanded = expandedItems.has(key)
+        const isActive = item.pageNumber === currentPage
+        
+        return (
+          <li key={key}>
+            <div className="flex items-center">
+              {/* Expand/collapse button for items with children */}
+              {hasChildren ? (
+                <button
+                  onClick={() => onToggleExpand(key)}
+                  className="p-1 hover:bg-[var(--void-surface-hover)] rounded shrink-0"
+                >
+                  {isExpanded ? (
+                    <ChevronDown className="w-3 h-3 text-[var(--void-text-dim)]" />
+                  ) : (
+                    <ChevronRightIcon className="w-3 h-3 text-[var(--void-text-dim)]" />
+                  )}
+                </button>
+              ) : (
+                <span className="w-5" /> // Spacer for alignment
+              )}
+              
+              {/* Title button */}
+              <button
+                onClick={() => onNavigate(item.pageNumber)}
+                className={`flex-1 text-left px-2 py-1 text-sm rounded truncate transition-colors ${
+                  isActive 
+                    ? 'bg-[var(--accent-primary)] text-white' 
+                    : 'hover:bg-[var(--void-surface-hover)] text-[var(--void-text)]'
+                }`}
+                title={`${item.title} (Page ${item.pageNumber})`}
+              >
+                {item.title}
+              </button>
+              
+              {/* Page number */}
+              <span className="text-xs text-[var(--void-text-dim)] px-2 shrink-0">
+                {item.pageNumber}
+              </span>
+            </div>
+            
+            {/* Children */}
+            {hasChildren && isExpanded && (
+              <OutlineTree
+                items={item.items}
+                currentPage={currentPage}
+                expandedItems={expandedItems}
+                onToggleExpand={onToggleExpand}
+                onNavigate={onNavigate}
+                depth={depth + 1}
+              />
+            )}
+          </li>
+        )
+      })}
+    </ul>
+  )
 }
 
 export function PDFReader({ book, onClose }: PDFReaderProps) {
   const [numPages, setNumPages] = useState<number>(book.totalPages)
   const [currentPage, setCurrentPage] = useState<number>(book.currentPage || 1)
   const [scale, setScale] = useState<number>(1.0)
+  const [isFullscreen, setIsFullscreen] = useState<boolean>(false)
+  const [showOutline, setShowOutline] = useState<boolean>(false)
+  const [outline, setOutline] = useState<OutlineItem[]>([])
+  const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set())
+  const pdfDocRef = useRef<pdfjs.PDFDocumentProxy | null>(null)
   
   const { updateProgress } = useLibraryStore()
   const { refreshTodayProgress } = useGoalsStore()
+  
+  // Toggle outline sidebar
+  const toggleOutline = useCallback(() => {
+    setShowOutline(prev => !prev)
+  }, [])
+  
+  // Toggle expanded state for outline items with children
+  const toggleExpanded = useCallback((key: string) => {
+    setExpandedItems(prev => {
+      const next = new Set(prev)
+      if (next.has(key)) {
+        next.delete(key)
+      } else {
+        next.add(key)
+      }
+      return next
+    })
+  }, [])
+  
+  // Fullscreen toggle
+  const toggleFullscreen = useCallback(async () => {
+    try {
+      if (!document.fullscreenElement) {
+        await document.documentElement.requestFullscreen()
+        setIsFullscreen(true)
+      } else {
+        await document.exitFullscreen()
+        setIsFullscreen(false)
+      }
+    } catch (error) {
+      console.error('Fullscreen error:', error)
+    }
+  }, [])
+  
+  // Listen for fullscreen changes (e.g., user presses Esc)
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement)
+    }
+    
+    document.addEventListener('fullscreenchange', handleFullscreenChange)
+    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange)
+  }, [])
   
   // Navigation functions - defined before useEffect that uses them
   const goToNextPage = useCallback(() => {
@@ -43,15 +173,37 @@ export function PDFReader({ book, onClose }: PDFReaderProps) {
     setScale(prev => Math.max(prev - 0.25, 0.5))
   }, [])
   
-  // Create object URL for the PDF blob
-  const pdfUrl = useMemo(() => {
-    return URL.createObjectURL(book.pdfBlob)
+  // Convert blob to Uint8Array for react-pdf (ArrayBuffer gets detached, Uint8Array is safer)
+  const [pdfData, setPdfData] = useState<Uint8Array | null>(null)
+  
+  useEffect(() => {
+    let cancelled = false
+    
+    const loadPdf = async () => {
+      try {
+        const arrayBuffer = await book.pdfBlob.arrayBuffer()
+        // Create a copy as Uint8Array to prevent detachment issues
+        const uint8Array = new Uint8Array(arrayBuffer)
+        if (!cancelled) {
+          setPdfData(uint8Array)
+        }
+      } catch (error) {
+        console.error('Failed to load PDF data:', error)
+      }
+    }
+    
+    loadPdf()
+    
+    return () => {
+      cancelled = true
+    }
   }, [book.pdfBlob])
   
-  // Cleanup URL on unmount
-  useEffect(() => {
-    return () => URL.revokeObjectURL(pdfUrl)
-  }, [pdfUrl])
+  // Memoize file prop to prevent unnecessary reloads
+  const file = useMemo(() => {
+    if (!pdfData) return null
+    return { data: pdfData }
+  }, [pdfData])
   
   // Save progress when page changes
   useEffect(() => {
@@ -77,17 +229,93 @@ export function PDFReader({ book, onClose }: PDFReaderProps) {
         e.preventDefault()
         goToPrevPage()
       } else if (e.key === 'Escape') {
-        onClose()
+        if (isFullscreen) {
+          document.exitFullscreen()
+        } else {
+          onClose()
+        }
       } else if (e.key === '+' || e.key === '=') {
         zoomIn()
       } else if (e.key === '-') {
         zoomOut()
+      } else if (e.key === 'f' || e.key === 'F') {
+        toggleFullscreen()
+      } else if (e.key === 't' || e.key === 'T') {
+        toggleOutline()
       }
     }
     
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [goToNextPage, goToPrevPage, zoomIn, zoomOut, onClose])
+  }, [goToNextPage, goToPrevPage, zoomIn, zoomOut, onClose, toggleFullscreen, isFullscreen, toggleOutline])
+  
+  // Load PDF outline when pdfData is ready
+  useEffect(() => {
+    if (!pdfData) return
+    
+    const loadOutline = async () => {
+      try {
+        // Create a copy of the data to avoid detachment issues
+        const dataCopy = new Uint8Array(pdfData)
+        
+        // Load PDF document directly using pdfjs
+        const loadingTask = pdfjs.getDocument({ data: dataCopy })
+        const pdfDoc = await loadingTask.promise
+        pdfDocRef.current = pdfDoc
+        
+        const pdfOutline = await pdfDoc.getOutline()
+        if (pdfOutline && pdfOutline.length > 0) {
+          // Convert PDF outline to our format with page numbers
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const convertOutline = async (items: any[]): Promise<OutlineItem[]> => {
+            const result: OutlineItem[] = []
+            
+            for (const item of items) {
+              let pageNumber = 1
+              
+              // Get page number from destination
+              if (item.dest) {
+                try {
+                  let destArray = item.dest
+                  if (typeof destArray === 'string') {
+                    destArray = await pdfDoc.getDestination(destArray)
+                  }
+                  if (destArray && destArray[0]) {
+                    const pageRef = destArray[0]
+                    const pageIndex = await pdfDoc.getPageIndex(pageRef)
+                    pageNumber = pageIndex + 1 // Convert 0-indexed to 1-indexed
+                  }
+                } catch {
+                  // Fallback to page 1 if destination parsing fails
+                }
+              }
+              
+              const children = item.items ? await convertOutline(item.items) : []
+              
+              result.push({
+                title: item.title,
+                pageNumber,
+                items: children,
+              })
+            }
+            
+            return result
+          }
+          
+          const convertedOutline = await convertOutline(pdfOutline)
+          console.log('Converted Outline:', convertedOutline) // Debug log
+          setOutline(convertedOutline)
+        } else {
+          console.log('No outline found in PDF')
+          setOutline([])
+        }
+      } catch (error) {
+        console.error('Failed to extract PDF outline:', error)
+      }
+    }
+    
+    loadOutline()
+  }, [pdfData])
   
   const onDocumentLoadSuccess = useCallback(({ numPages }: { numPages: number }) => {
     setNumPages(numPages)
@@ -113,6 +341,16 @@ export function PDFReader({ book, onClose }: PDFReaderProps) {
           >
             <X className="w-5 h-5" />
           </button>
+          
+          {/* Table of Contents toggle */}
+          <button
+            onClick={toggleOutline}
+            className={`p-2 rounded transition-colors ${showOutline ? 'bg-[var(--accent-primary)] text-white' : 'hover:bg-[var(--void-surface-hover)]'}`}
+            title="Table of Contents (T)"
+          >
+            <List className="w-5 h-5" />
+          </button>
+          
           <div className="truncate max-w-md">
             <h1 className="font-medium truncate">{book.title}</h1>
           </div>
@@ -138,6 +376,17 @@ export function PDFReader({ book, onClose }: PDFReaderProps) {
           
           <div className="w-px h-6 bg-[var(--void-border)] mx-2" />
           
+          {/* Fullscreen toggle */}
+          <button
+            onClick={toggleFullscreen}
+            className="p-2 rounded hover:bg-[var(--void-surface-hover)] transition-colors"
+            title={isFullscreen ? "Exit fullscreen (F)" : "Fullscreen (F)"}
+          >
+            {isFullscreen ? <Minimize className="w-4 h-4" /> : <Maximize className="w-4 h-4" />}
+          </button>
+          
+          <div className="w-px h-6 bg-[var(--void-border)] mx-2" />
+          
           {/* Page indicator */}
           <span className="text-sm font-mono">
             {currentPage} / {numPages}
@@ -145,31 +394,62 @@ export function PDFReader({ book, onClose }: PDFReaderProps) {
         </div>
       </header>
       
-      {/* PDF Content */}
-      <div className="flex-1 overflow-auto flex justify-center p-4 bg-[var(--void-bg)]">
-        <Document
-          file={pdfUrl}
-          onLoadSuccess={onDocumentLoadSuccess}
-          loading={
+      {/* Main content area with optional sidebar */}
+      <div className="flex-1 flex overflow-hidden">
+        {/* Table of Contents Sidebar */}
+        {showOutline && (
+          <aside className="w-64 bg-[var(--void-surface)] border-r border-[var(--void-border)] flex flex-col shrink-0 overflow-hidden">
+            <div className="p-3 border-b border-[var(--void-border)]">
+              <h2 className="text-sm font-medium text-[var(--void-text-muted)]">Table of Contents</h2>
+            </div>
+            <div className="flex-1 overflow-auto p-2">
+              {outline.length === 0 ? (
+                <p className="text-sm text-[var(--void-text-dim)] p-2">No table of contents available</p>
+              ) : (
+                <OutlineTree 
+                  items={outline} 
+                  currentPage={currentPage}
+                  expandedItems={expandedItems}
+                  onToggleExpand={toggleExpanded}
+                  onNavigate={(page) => setCurrentPage(page)}
+                />
+              )}
+            </div>
+          </aside>
+        )}
+        
+        {/* PDF Content */}
+        <div className="flex-1 overflow-auto flex justify-center p-4 bg-[var(--void-bg)]">
+          {!file ? (
             <div className="flex items-center justify-center h-full">
               <p className="text-[var(--void-text-muted)]">Loading PDF...</p>
             </div>
-          }
-          error={
-            <div className="flex items-center justify-center h-full">
-              <p className="text-[var(--accent-danger)]">Failed to load PDF</p>
-            </div>
-          }
-          className="max-w-full"
-        >
-          <Page
-            pageNumber={currentPage}
-            scale={scale}
-            className="shadow-2xl"
-            renderTextLayer={true}
-            renderAnnotationLayer={true}
-          />
-        </Document>
+          ) : (
+          <Document
+            file={file}
+            onLoadSuccess={onDocumentLoadSuccess}
+            loading={
+              <div className="flex items-center justify-center h-full">
+                <p className="text-[var(--void-text-muted)]">Loading PDF...</p>
+              </div>
+            }
+            error={
+              <div className="flex items-center justify-center h-full">
+                <p className="text-[var(--accent-danger)]">Failed to load PDF</p>
+              </div>
+            }
+            className="max-w-full"
+          >
+            <Page
+              pageNumber={currentPage}
+              scale={scale}
+              className="shadow-2xl"
+              renderTextLayer={true}
+              renderAnnotationLayer={true}
+            />
+          </Document>
+          )}
+        </div>
       </div>
       
       {/* Footer with navigation */}

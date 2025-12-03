@@ -1,6 +1,6 @@
 import * as pdfjsLib from 'pdfjs-dist'
 
-// Set worker source using Vite's import.meta.url for proper resolution
+// Set worker source for pdfjs-dist v5
 pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
   'pdfjs-dist/build/pdf.worker.min.mjs',
   import.meta.url
@@ -61,6 +61,7 @@ export async function generateCoverThumbnail(file: File, width = 150, height = 2
     await page.render({
       canvasContext: context,
       viewport: scaledViewport,
+      canvas,
     }).promise
     
     return new Promise((resolve) => {
